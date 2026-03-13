@@ -63,9 +63,9 @@ void ChessBoard::createChessPiece(Color col, Type ty, int startRow, int startCol
         newPiece = new RookPiece(*this, col, startRow, startColumn);
     } else if (ty == Bishop) {
         newPiece = new BishopPiece(*this, col, startRow, startColumn);
-    } else if (ty == King) {
-        newPiece = new KingPiece(*this, col, startRow, startColumn);
-    }
+    } // else if (ty == King) {
+      //  newPiece = new KingPiece(*this, col, startRow, startColumn);
+    // }
 
     board.at(startRow).at(startColumn) = newPiece;
 }
@@ -95,5 +95,31 @@ bool ChessBoard::isValidMove(int fromRow, int fromColumn, int toRow, int toColum
         return false;
     }
 
+    int rowStep = 0;
+    if (toRow > fromRow) rowStep = 1;
+    else if (toRow < fromRow) rowStep = -1;
+
+    int colStep = 0;
+    if (toColumn > fromColumn) colStep = 1;
+    else if (toColumn < fromColumn) colStep = -1;
+
+    int currRow = fromRow + rowStep;
+    int currColumn = fromColumn + colStep;
+    while (currRow != toRow || currColumn != toColumn) {
+        if (board.at(currRow).at(currColumn) != nullptr) {
+            return false;
+        }
+        currRow += rowStep;
+        currColumn += colStep;
+    }
+
     return true;
+}
+
+bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn) {
+    return false; // Finish in part 2
+}
+
+bool ChessBoard::isPieceUnderThreat(int row, int column) {
+    return false; // Finish in part 2
 }
