@@ -3,13 +3,19 @@
 
 #include "Chess.h"
 
-    namespace Student
+namespace Student
 {
   class ChessBoard;
 
   class ChessPiece
   {
-  public:
+    private:
+    ChessBoard &board;
+    Color color;
+    Type type;
+    int row;
+    int column;
+    public:
     /**
      * @brief
      * Constructor for ChessPiece.
@@ -22,7 +28,7 @@
      * @param column
      * Starting column of the piece.
      */
-    ChessPiece(ChessBoard &board, Color color, int row, int column);
+    ChessPiece(ChessBoard &board, Color color, Type type, int row, int column); // Added type (change later if get errors)
     /**
      * @brief
      * Default destructor for ChessPiece.
