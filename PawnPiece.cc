@@ -9,7 +9,7 @@ namespace Student {
         int rowDirection = (getColor() == Black) ? 1 : -1;
         int rowChange = toRow - getRow();
         bool doubleMoveValid = ((getColor() == Black && getRow() == 1) ||
-                                (getColor() == White && getRow() == 6));
+                                (getColor() == White && getRow() == (getBoard().getNumRows() - 2)));
 
         if(toColumn == getColumn() && rowChange == rowDirection) {
             // Regular move forward by 1

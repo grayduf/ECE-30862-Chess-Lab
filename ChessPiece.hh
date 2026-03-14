@@ -36,6 +36,8 @@ namespace Student
      */
     virtual ~ChessPiece() {}
 
+    ChessBoard& getBoard() { return board; }; // Need this to access board in PawnPiece.cc
+
     /**
      * @return
      * Colour of piece.
