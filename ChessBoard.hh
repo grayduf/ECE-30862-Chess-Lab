@@ -36,7 +36,7 @@ namespace Student
          */
         ChessBoard(int numRow, int numCol);
 
-        //~ChessBoard();
+        ~ChessBoard();
 
         /**
          * @return

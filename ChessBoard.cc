@@ -15,15 +15,15 @@ namespace Student {
         }
     }
 
-    // ChessBoard::~ChessBoard() {
-    //     for (int i = 0; i < numRows; i++) {
-    //         for (int j = 0; j < numCols; j++) {
-    //             if (board.at(i).at(j) != nullptr) {
-    //                 delete board.at(i).at(j);
-    //             }
-    //         }
-    //     }
-    // }
+    ChessBoard::~ChessBoard() {
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                if (board.at(i).at(j) != nullptr) {
+                    delete board.at(i).at(j);
+                }
+            }
+        }
+    }
 
     std::ostringstream ChessBoard::displayBoard()
     {
