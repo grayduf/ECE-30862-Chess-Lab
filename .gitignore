@@ -11,3 +11,9 @@ Thumbs.db
 # Editor temporary files
 *~
 *.swp
+
+# Debug info for MacOS
+chess.dSYM/
+
+# Project Instructions
+*.pdf
