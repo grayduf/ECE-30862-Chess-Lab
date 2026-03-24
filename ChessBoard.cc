@@ -135,7 +135,21 @@ namespace Student {
     }
 
     bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn) {
-        return false; // Finish in part 2
+        ChessPiece* selectedPiece = getPiece(fromRow, fromColumn);
+        if(isValidMove(fromRow, fromColumn, toRow, toColumn) && selectedPiece != nullptr && selectedPiece->getColor() == turn) {
+            if(board.at(toRow).at(toColumn) != nullptr) {
+                delete board.at(toRow).at(toColumn);
+            }
+            selectedPiece->setPosition(toRow, toColumn);
+            board.at(toRow).at(toColumn) = selectedPiece;
+            board.at(fromRow).at(fromColumn) = nullptr;
+
+            // change turns
+            turn = turn == White ? Black : White;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     bool ChessBoard::isPieceUnderThreat(int row, int column) {
