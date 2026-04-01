@@ -17,3 +17,6 @@ chess.dSYM/
 
 # Project Instructions
 *.pdf
+
+# Testing Output
+output.txt

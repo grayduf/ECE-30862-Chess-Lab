@@ -24,6 +24,98 @@ namespace Student
          */
         std::vector<std::vector<ChessPiece *>> board;
 
+        /**
+         * @brief
+         * Whenever a new King is added to the board, it is appended to this list.
+         * This array is used in willMoveCheckKing() for efficent isPieceUnderThreat() scanning
+         * without needing to check every piece on the board for its type.
+         */
+        std::vector<ChessPiece *> kingPieces;
+
+        /**
+         * @brief
+         * Whenever a new white piece is added to the board, including Kings (which are added to this vector and kingPieces), 
+         * it is appended to this list. This array is used for efficent isPieceUnderThreat() scanning
+         * without needing to check every square on the board for pieces.
+         */
+        std::vector<ChessPiece *> whitePieces;
+
+        /**
+         * @brief
+         * Whenever a new black piece is added to the board, including Kings (which are added to this vector and kingPieces), 
+         * it is appended to this list. This array is used for efficent isPieceUnderThreat() scanning
+         * without needing to check every square on the board for pieces.
+         */
+        std::vector<ChessPiece *> blackPieces;
+
+        /**
+         * @brief
+         * Checks if a move is valid without accounting for turns or putting the King in check.
+         * Used in isPieceUnderThreat to avoid infinite loop checking by calling willMoveCheckKing from within isPieceUnderThreat.
+         * @param fromRow
+         * The row of the piece to be moved.
+         * @param fromColumn
+         * The column of the piece to be moved.
+         * @param toRow
+         * The row of the destination position.
+         * @param toColumn
+         * The column of the destination position.
+         * @return
+         * Returns true if move may be executed without accounting for turn or putting the King in check.
+         */
+        bool isPossibleMove(int fromRow, int fromColumn, int toRow, int toColumn);
+
+        /**
+         * @brief
+         * Checks if a move will place the moving piece's King in check.
+         * Assumes that the move is otherwise valid.
+         * @param fromRow
+         * The row of the piece to be moved.
+         * @param fromColumn
+         * The column of the piece to be moved.
+         * @param toRow
+         * The row of the destination position.
+         * @param toColumn
+         * The column of the destination position.
+         * @return
+         * Returns true if move will place the moving piece's King in check.
+         */
+        bool willMoveCheckKing(int fromRow, int fromColumn, int toRow, int toColumn);
+
+        /**
+         * @brief
+         * Removes piece from its respective piece vector (blackPieces or whitePieces),
+         * as well as kingPieces if it is a King.
+         * The piece's memory is then deallocated and assigns the
+         * the corresponding pointer in the 'board' variable to nullptr.
+         * @param row
+         * row of the piece to be removed.
+         * @param column
+         * column of the piece to be removed.
+         */
+        void removePiece(int row, int column);
+
+        /**
+         * @brief
+         * Moves piece at (fromRow, fromColumn) to (toRow, toColumn)
+         * and removes the piece at (toRow, toColumn) if one exists.
+         * @param fromRow
+         * The row of the piece to be moved.
+         * @param fromColumn
+         * The column of the piece to be moved.
+         * @param toRow
+         * The row of the destination position.
+         * @param toColumn
+         * The column of the destination position.
+         */
+        void capturePiece(int fromRow, int fromColumn, int toRow, int toColumn);
+
+        /**
+         * @brief
+         * Toggles the turn class variable.
+         */
+        void changeTurns();
+
     public:
         /**
          * @brief

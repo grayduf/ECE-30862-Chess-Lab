@@ -18,11 +18,77 @@ namespace Student {
     ChessBoard::~ChessBoard() {
         for (int i = 0; i < numRows; i++) {
             for (int j = 0; j < numCols; j++) {
-                if (board.at(i).at(j) != nullptr) {
-                    delete board.at(i).at(j);
+                if (board.at(i).at(j) != nullptr) { // TODO: can all board.at(i).at(j) be changed to getPiece() ?
+                    removePiece(i, j);
                 }
             }
         }
+    }
+
+    void ChessBoard::createChessPiece(Color col, Type ty, int startRow, int startColumn)
+    {
+        if (board.at(startRow).at(startColumn) != nullptr) {
+            removePiece(startRow, startColumn);
+        }
+
+        ChessPiece* newPiece = nullptr;
+
+        if (ty == Pawn) {
+            newPiece = new PawnPiece(*this, col, startRow, startColumn);
+        } else if (ty == Rook) {
+            newPiece = new RookPiece(*this, col, startRow, startColumn);
+        } else if (ty == Bishop) {
+            newPiece = new BishopPiece(*this, col, startRow, startColumn);
+        } else if (ty == King) {
+            newPiece = new KingPiece(*this, col, startRow, startColumn);
+            kingPieces.push_back(newPiece);
+        } //else {
+            // exit(1) // TODO: invalid piece type
+        //}
+
+        if(newPiece->getColor() == White) {
+            whitePieces.push_back(newPiece);
+        } else {
+            blackPieces.push_back(newPiece);
+        }
+
+        board.at(startRow).at(startColumn) = newPiece;
+    }
+
+    bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn) {
+        ChessPiece* selectedPiece = getPiece(fromRow, fromColumn);
+        if(isValidMove(fromRow, fromColumn, toRow, toColumn) && selectedPiece != nullptr && selectedPiece->getColor() == turn) {
+            capturePiece(fromRow, fromColumn, toRow, toColumn);
+            changeTurns();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool ChessBoard::isValidMove(int fromRow, int fromColumn, int toRow, int toColumn)
+    {
+        if(!isPossibleMove(fromRow, fromColumn, toRow, toColumn)) {
+            return false;
+        }
+
+        if(willMoveCheckKing(fromRow, fromColumn, toRow, toColumn)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool ChessBoard::isPieceUnderThreat(int row, int column) {
+        if(getPiece(row, column) != nullptr) {
+            std::vector<ChessPiece *> enemyPieces = getPiece(row, column)->getColor() == White ? blackPieces : whitePieces;
+            for (const auto& element : enemyPieces) {
+                if(isPossibleMove(element->getRow(), element->getColumn(), row, column)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     std::ostringstream ChessBoard::displayBoard()
@@ -59,30 +125,7 @@ namespace Student {
         return outputString;
     }
 
-    void ChessBoard::createChessPiece(Color col, Type ty, int startRow, int startColumn)
-    {
-        if (board.at(startRow).at(startColumn) != nullptr) {
-            delete board.at(startRow).at(startColumn);
-            board.at(startRow).at(startColumn) = nullptr;
-        }
-
-        ChessPiece* newPiece = nullptr;
-
-        if (ty == Pawn) {
-            newPiece = new PawnPiece(*this, col, startRow, startColumn);
-        } else if (ty == Rook) {
-            newPiece = new RookPiece(*this, col, startRow, startColumn);
-        } else if (ty == Bishop) {
-            newPiece = new BishopPiece(*this, col, startRow, startColumn);
-        } // else if (ty == King) {
-        //  newPiece = new KingPiece(*this, col, startRow, startColumn);
-        // }
-
-        board.at(startRow).at(startColumn) = newPiece;
-    }
-
-    bool ChessBoard::isValidMove(int fromRow, int fromColumn, int toRow, int toColumn)
-    {
+    bool ChessBoard::isPossibleMove(int fromRow, int fromColumn, int toRow, int toColumn) {
         if (fromRow < 0 || fromRow >= numRows || fromColumn < 0 || fromColumn >= numCols ||
             toRow < 0 || toRow >= numRows || toColumn < 0 || toColumn >= numCols) {
             return false;
@@ -134,34 +177,71 @@ namespace Student {
         return true;
     }
 
-    bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn) {
-        ChessPiece* selectedPiece = getPiece(fromRow, fromColumn);
-        if(isValidMove(fromRow, fromColumn, toRow, toColumn) && selectedPiece != nullptr && selectedPiece->getColor() == turn) {
-            if(board.at(toRow).at(toColumn) != nullptr) {
-                delete board.at(toRow).at(toColumn);
-            }
-            selectedPiece->setPosition(toRow, toColumn);
-            board.at(toRow).at(toColumn) = selectedPiece;
-            board.at(fromRow).at(fromColumn) = nullptr;
-
-            // change turns
-            turn = turn == White ? Black : White;
-            return true;
-        } else {
-            return false;
+    bool ChessBoard::willMoveCheckKing(int fromRow, int fromColumn, int toRow, int toColumn) {
+        bool targetIsNotNull = board.at(toRow).at(toColumn) != nullptr ? true : false;
+        Type targetType;
+        Color targetColor;
+        if(targetIsNotNull) {
+            // save target type for restoring after fake move
+            targetType = board.at(toRow).at(toColumn)->getType();
+            targetColor = board.at(toRow).at(toColumn)->getColor();
         }
-    }
+        Color selectedColor = board.at(fromRow).at(fromColumn)->getColor(); // willMoveCheckKing is only called when selected != nullptr
 
-    bool ChessBoard::isPieceUnderThreat(int row, int column) {
-        if(getPiece(row, column) != nullptr) {
-            for(int i = 0; i < numRows; i++) {
-                for(int j = 0; j < numCols; j++) {
-                    if(isValidMove(i, j, row, column)) {
-                        return true;
-                    }
+        // perform a fake move, as if the move is valid
+        capturePiece(fromRow, fromColumn, toRow, toColumn);
+
+        // check if fake move places selectedPiece's king in check
+        bool isKingChecked = false;
+        for (const auto& element : kingPieces) {
+            if(element->getColor() == selectedColor) { // only want to check (fromRow, fromColumn)'s Kings
+                if(isPieceUnderThreat(element->getRow(), element->getColumn())) {
+                    isKingChecked = true;
+                    break; // even if other Kings are in check, isKingChecked will still be true, so break saves unnecessary checks
                 }
             }
         }
-        return false;
+        
+        //put board back in original state
+        capturePiece(toRow, toColumn, fromRow, fromColumn);
+        if(targetIsNotNull) {
+            createChessPiece(targetColor, targetType, toRow, toColumn);
+        }
+        return isKingChecked;
+    }
+
+    void ChessBoard::removePiece(int row, int column) {
+        if(board.at(row).at(column) != nullptr) {
+            // removes piece's pointer from respective piece vector
+            if(board.at(row).at(column)->getColor() == White) {
+                whitePieces.erase(std::remove(whitePieces.begin(), whitePieces.end(), board.at(row).at(column)), whitePieces.end());
+            } else {
+                blackPieces.erase(std::remove(blackPieces.begin(), blackPieces.end(), board.at(row).at(column)), blackPieces.end());
+            }
+
+            // removes piece's pointer from kingPieces if it is a King piece
+            if(board.at(row).at(column)->getType() == King) {
+                kingPieces.erase(std::remove(kingPieces.begin(), kingPieces.end(), board.at(row).at(column)), kingPieces.end());
+            }
+            
+            delete board.at(row).at(column);
+            board.at(row).at(column) = nullptr;
+        }
+    }
+
+    void ChessBoard::capturePiece(int fromRow, int fromColumn, int toRow, int toColumn) {
+        ChessPiece* selectedPiece = getPiece(fromRow, fromColumn);
+        if(board.at(toRow).at(toColumn) != nullptr) {
+            removePiece(toRow, toColumn);
+        }
+        if(selectedPiece != nullptr) {
+            selectedPiece->setPosition(toRow, toColumn);
+            board.at(toRow).at(toColumn) = selectedPiece;
+            board.at(fromRow).at(fromColumn) = nullptr;
+        }
+    }
+
+    void ChessBoard::changeTurns() {
+        turn = turn == White ? Black : White;
     }
 }
