@@ -178,35 +178,34 @@ namespace Student {
     }
 
     bool ChessBoard::willMoveCheckKing(int fromRow, int fromColumn, int toRow, int toColumn) {
-        bool targetIsNotNull = board.at(toRow).at(toColumn) != nullptr ? true : false;
-        Type targetType;
-        Color targetColor;
-        if(targetIsNotNull) {
-            // save target type for restoring after fake move
-            targetType = board.at(toRow).at(toColumn)->getType();
-            targetColor = board.at(toRow).at(toColumn)->getColor();
-        }
-        Color selectedColor = board.at(fromRow).at(fromColumn)->getColor(); // willMoveCheckKing is only called when selected != nullptr
+        ChessPiece* movingPiece = board.at(fromRow).at(fromColumn);
+        ChessPiece* targetPiece = board.at(toRow).at(toColumn);
+        Color myColor = movingPiece->getColor();
+        
+        // manually simulate move on the board
+        board.at(toRow).at(toColumn) = movingPiece;
+        board.at(fromRow).at(fromColumn) = nullptr;
 
-        // perform a fake move, as if the move is valid
-        capturePiece(fromRow, fromColumn, toRow, toColumn);
+        // temp update the moving piece's pos 
+        int origRow = fromRow;
+        int origCol = fromColumn;
+        movingPiece->setPosition(toRow, toColumn);
 
-        // check if fake move places selectedPiece's king in check
         bool isKingChecked = false;
-        for (const auto& element : kingPieces) {
-            if(element->getColor() == selectedColor) { // only want to check (fromRow, fromColumn)'s Kings
-                if(isPieceUnderThreat(element->getRow(), element->getColumn())) {
+        for (ChessPiece* king : kingPieces) {
+            if (king->getColor() == myColor) {
+                if (isPieceUnderThreat(king->getRow(), king->getColumn())) {
                     isKingChecked = true;
-                    break; // even if other Kings are in check, isKingChecked will still be true, so break saves unnecessary checks
+                    break;
                 }
             }
         }
-        
-        //put board back in original state
-        capturePiece(toRow, toColumn, fromRow, fromColumn);
-        if(targetIsNotNull) {
-            createChessPiece(targetColor, targetType, toRow, toColumn);
-        }
+
+        //undo the simulated move
+        board.at(origRow).at(origCol) = movingPiece;
+        board.at(toRow).at(toColumn) = targetPiece;
+        movingPiece->setPosition(origRow, origCol);
+
         return isKingChecked;
     }
 
@@ -232,7 +231,7 @@ namespace Student {
                     }
                 }
             }
-            
+
             delete pieceToRemove;
             board.at(row).at(column) = nullptr;
         }
