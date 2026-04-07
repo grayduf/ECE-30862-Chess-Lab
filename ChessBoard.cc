@@ -3,6 +3,7 @@
 #include "RookPiece.hh"
 #include "BishopPiece.hh"
 #include "KingPiece.hh"
+#include <algorithm>
 
 namespace Student {
     using Student::ChessBoard;
