@@ -3,7 +3,6 @@
 #include "RookPiece.hh"
 #include "BishopPiece.hh"
 #include "KingPiece.hh"
-#include <algorithm>
 
 namespace Student {
     using Student::ChessBoard;
@@ -212,20 +211,29 @@ namespace Student {
     }
 
     void ChessBoard::removePiece(int row, int column) {
-        if(board.at(row).at(column) != nullptr) {
-            // removes piece's pointer from respective piece vector
-            if(board.at(row).at(column)->getColor() == White) {
-                whitePieces.erase(std::remove(whitePieces.begin(), whitePieces.end(), board.at(row).at(column)), whitePieces.end());
-            } else {
-                blackPieces.erase(std::remove(blackPieces.begin(), blackPieces.end(), board.at(row).at(column)), blackPieces.end());
-            }
+        ChessPiece* pieceToRemove = board.at(row).at(column);
+        if(pieceToRemove != nullptr) {
 
-            // removes piece's pointer from kingPieces if it is a King piece
-            if(board.at(row).at(column)->getType() == King) {
-                kingPieces.erase(std::remove(kingPieces.begin(), kingPieces.end(), board.at(row).at(column)), kingPieces.end());
+            //white and black pieces manually
+            if (pieceToRemove->getColor() == White) {
+                for (auto it = whitePieces.begin(); it != whitePieces.end(); ) {
+                    if (*it == pieceToRemove) {
+                        it = whitePieces.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+            } else { 
+                for (auto it = blackPieces.begin(); it != blackPieces.end(); ) {
+                    if (*it == pieceToRemove) {
+                        it = blackPieces.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
             }
             
-            delete board.at(row).at(column);
+            delete pieceToRemove;
             board.at(row).at(column) = nullptr;
         }
     }
