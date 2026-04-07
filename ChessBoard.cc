@@ -80,15 +80,35 @@ namespace Student {
     }
 
     bool ChessBoard::isPieceUnderThreat(int row, int column) {
-        if(getPiece(row, column) != nullptr) {
-            std::vector<ChessPiece *> enemyPieces = getPiece(row, column)->getColor() == White ? blackPieces : whitePieces;
-            for (const auto& element : enemyPieces) {
-                if(isPossibleMove(element->getRow(), element->getColumn(), row, column)) {
-                    return true;
+        // if(getPiece(row, column) != nullptr) {
+        //     std::vector<ChessPiece *> enemyPieces = getPiece(row, column)->getColor() == White ? blackPieces : whitePieces;
+        //     for (const auto& element : enemyPieces) {
+        //         if(isPossibleMove(element->getRow(), element->getColumn(), row, column)) {
+        //             return true;
+        //         }
+        //     }
+        // }
+        // return false;
+
+        ChessPiece* p = board.at(row).at(column);
+        if(p != nullptr) {
+            // Manual vector removal to avoid <algorithm>
+            auto& vec = (p->getColor() == White) ? whitePieces : blackPieces;
+            for (auto it = vec.begin(); it != vec.end(); ) {
+                if (*it == p) it = vec.erase(it);
+                else ++it;
+            }
+
+            if(p->getType() == King) {
+                for (auto it = kingPieces.begin(); it != kingPieces.end(); ) {
+                    if (*it == p) it = kingPieces.erase(it);
+                    else ++it;
                 }
             }
+            
+            delete p;
+            board.at(row).at(column) = nullptr;
         }
-        return false;
     }
 
     std::ostringstream ChessBoard::displayBoard()
