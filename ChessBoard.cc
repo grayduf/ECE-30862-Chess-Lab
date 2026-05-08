@@ -2,6 +2,8 @@
 #include "PawnPiece.hh"
 #include "RookPiece.hh"
 #include "BishopPiece.hh"
+#include "QueenPiece.hh"
+#include "KnightPiece.hh"
 #include "KingPiece.hh"
 
 namespace Student {
@@ -39,6 +41,10 @@ namespace Student {
             newPiece = new RookPiece(*this, col, startRow, startColumn);
         } else if (ty == Bishop) {
             newPiece = new BishopPiece(*this, col, startRow, startColumn);
+        } else if (ty == Queen) {
+            newPiece = new QueenPiece(*this, col, startRow, startColumn);
+        } else if (ty == Knight) {
+            newPiece = new KnightPiece(*this, col, startRow, startColumn);
         } else if (ty == King) {
             newPiece = new KingPiece(*this, col, startRow, startColumn);
             kingPieces.push_back(newPiece);
@@ -149,29 +155,31 @@ namespace Student {
             return false;
         }
 
-        int rowStep = 0; // stays zero if toRow == fromRow
-        if (toRow > fromRow) rowStep = 1;
-        else if (toRow < fromRow) rowStep = -1;
+        if(selectedPiece->getType() != Knight) {
+            int rowStep = 0; // stays zero if toRow == fromRow
+            if (toRow > fromRow) rowStep = 1;
+            else if (toRow < fromRow) rowStep = -1;
 
-        int colStep = 0; // stays zero if toColumn == fromColumn
-        if (toColumn > fromColumn) colStep = 1;
-        else if (toColumn < fromColumn) colStep = -1;
+            int colStep = 0; // stays zero if toColumn == fromColumn
+            if (toColumn > fromColumn) colStep = 1;
+            else if (toColumn < fromColumn) colStep = -1;
 
-        int currRow = fromRow + rowStep;
-        int currColumn = fromColumn + colStep;
+            int currRow = fromRow + rowStep;
+            int currColumn = fromColumn + colStep;
 
-        if ((selectedPiece->getType() == Pawn && colStep == 0 && targetPiece != nullptr) ||
-            (selectedPiece->getType() == Pawn && colStep != 0 && targetPiece == nullptr)) {
-            // a pawn can't take a piece in front of it, and can't move diagonally if a piece isn't there
-            return false;
-        }
-
-        while (currRow != toRow || currColumn != toColumn) {
-            if (board.at(currRow).at(currColumn) != nullptr) {
+            if ((selectedPiece->getType() == Pawn && colStep == 0 && targetPiece != nullptr) ||
+                (selectedPiece->getType() == Pawn && colStep != 0 && targetPiece == nullptr)) {
+                // a pawn can't take a piece in front of it, and can't move diagonally if a piece isn't there
                 return false;
             }
-            currRow += rowStep; 
-            currColumn += colStep;
+
+            while (currRow != toRow || currColumn != toColumn) {
+                if (board.at(currRow).at(currColumn) != nullptr) {
+                    return false;
+                }
+                currRow += rowStep; 
+                currColumn += colStep;
+            }
         }
 
         return true;

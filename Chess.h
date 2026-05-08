@@ -12,6 +12,8 @@ enum Type
     Rook,
     Bishop,
     King,
+    Queen,
+    Knight
 };
 
 #endif
