@@ -245,10 +245,17 @@ namespace Student {
             removePiece(toRow, toColumn);
         }
         if(selectedPiece != nullptr) {
-            selectedPiece->setPosition(toRow, toColumn);
-            board.at(toRow).at(toColumn) = selectedPiece;
-            board.at(fromRow).at(fromColumn) = nullptr;
+            // check for pawn promotion
+            if(selectedPiece->getType() == Pawn &&
+               ((selectedPiece->getColor() == White && toRow == 0) || (selectedPiece->getColor() == Black && toRow == numRows - 1))) {
+                createChessPiece(selectedPiece->getColor(), Queen, toRow, toColumn);
+                removePiece(fromRow, fromColumn);
+            } else {
+                selectedPiece->setPosition(toRow, toColumn);
+                board.at(toRow).at(toColumn) = selectedPiece;
+            }
         }
+        board.at(fromRow).at(fromColumn) = nullptr;
     }
 
     void ChessBoard::changeTurns() {
