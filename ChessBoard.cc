@@ -243,7 +243,7 @@ namespace Student {
                 return false;
             }
             if(selectedPiece->getType() == Pawn && colStep != 0 && targetPiece == nullptr) {
-                if(enPassantActive && targetPiece->getRow() == enPassantGhostRow && targetPiece->getColumn() == enPassantGhostCol) {
+                if(enPassantActive && toRow == enPassantGhostRow && toColumn == enPassantGhostCol) {
                     removePiece(enPassantPieceRow, enPassantPieceCol); // en passant
                 } else {
                     return false; // a pawn can't move diagonally if a piece isn't there, as long as en passant is not legal
