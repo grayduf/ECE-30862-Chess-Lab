@@ -245,6 +245,7 @@ namespace Student {
             if(selectedPiece->getType() == Pawn && colStep != 0 && targetPiece == nullptr) {
                 if(enPassantActive && toRow == enPassantGhostRow && toColumn == enPassantGhostCol) {
                     removePiece(enPassantPieceRow, enPassantPieceCol); // en passant
+                    return true;
                 } else {
                     return false; // a pawn can't move diagonally if a piece isn't there, as long as en passant is not legal
                 }
