@@ -64,6 +64,14 @@ namespace Student {
     bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn) {
         ChessPiece* selectedPiece = getPiece(fromRow, fromColumn);
         if(isValidMove(fromRow, fromColumn, toRow, toColumn) && selectedPiece != nullptr && selectedPiece->getColor() == turn) {
+            if(selectedPiece->getType() == King && (fromColumn - toColumn == 2 || fromColumn - toColumn == -2)) { // must be a castle
+                int colStep = (toColumn - fromColumn > 0) ? 1 : -1;
+                int stepCol = fromColumn + colStep;
+                while(getPiece(fromRow, stepCol) == nullptr) {
+                    stepCol += colStep;
+                }
+                capturePiece(fromRow, stepCol, toRow, fromColumn + colStep); // move rook into castle place
+            }
             capturePiece(fromRow, fromColumn, toRow, toColumn);
             changeTurns();
             return true;
@@ -131,6 +139,51 @@ namespace Student {
         return outputString;
     }
 
+    bool ChessBoard::isCastleLegal(int fromRow, int fromColumn, int toRow, int toColumn) {
+        ChessPiece* selectedPiece = board.at(fromRow).at(fromColumn);
+
+        if(selectedPiece->getType() != King) {
+            return false;
+        }
+
+        if(selectedPiece->getPieceMoved() == true) {
+            return false;
+        }
+
+        if(!(fromRow == toRow && (fromColumn - toColumn == 2 || fromColumn - toColumn == -2))) {
+            return false;
+        }
+
+        int colStep = 0; // stays zero if toColumn == fromColumn
+        int currColumn = fromColumn;
+        int steps = 0; // only the first two spaces need to be checked for threat
+        if (toColumn > fromColumn) colStep = 1;
+        else if (toColumn < fromColumn) colStep = -1;
+
+        while (currColumn + colStep >= 0 && currColumn + colStep < numCols) { // until go out of bounds
+            if(steps <= 2 && isPieceUnderThreat(fromRow, currColumn)) {
+                return false;
+            }
+
+            currColumn += colStep;
+            steps++;
+
+            if(board.at(fromRow).at(currColumn) != nullptr) {
+                if(board.at(fromRow).at(currColumn)->getType() == Rook) {
+                    if(board.at(fromRow).at(currColumn)->getPieceMoved() == true) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        
+        return false; // only can get to this line if currColumn + colStep is out of bounds (meaning there is no piece between king and edge of board)
+    }
+
     bool ChessBoard::isPossibleMove(int fromRow, int fromColumn, int toRow, int toColumn) {
         if (fromRow < 0 || fromRow >= numRows || fromColumn < 0 || fromColumn >= numCols ||
             toRow < 0 || toRow >= numRows || toColumn < 0 || toColumn >= numCols) {
@@ -152,7 +205,9 @@ namespace Student {
         }
 
         if (!selectedPiece->canMoveToLocation(toRow, toColumn)) {
-            return false;
+            if(!(selectedPiece->getType() == King && isCastleLegal(fromRow, fromColumn, toRow, toColumn))) {
+                return false;
+            }
         }
 
         if(selectedPiece->getType() != Knight) {
@@ -254,6 +309,8 @@ namespace Student {
                 selectedPiece->setPosition(toRow, toColumn);
                 board.at(toRow).at(toColumn) = selectedPiece;
             }
+
+            selectedPiece->setPieceMovedTrue();
         }
         board.at(fromRow).at(fromColumn) = nullptr;
     }

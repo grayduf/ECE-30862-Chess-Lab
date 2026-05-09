@@ -3,7 +3,7 @@
 
 namespace Student {
     ChessPiece::ChessPiece(ChessBoard &board, Color color, Type type, int row, int column)
-        : board(board), color(color), type(type), row(row), column(column) {}
+        : board(board), color(color), type(type), row(row), column(column), pieceMoved(false) {}
     
         Color ChessPiece::getColor() {
             return color;
@@ -19,6 +19,14 @@ namespace Student {
 
         int ChessPiece::getColumn() {
             return column;
+        }
+
+        bool ChessPiece::getPieceMoved() {
+            return pieceMoved;
+        }
+
+        void ChessPiece::setPieceMovedTrue() {
+            pieceMoved = true;
         }
 
         void ChessPiece::setPosition(int row, int column) {

@@ -67,6 +67,22 @@ namespace Student
 
         /**
          * @brief
+         * Checks if a move is valid for castling.
+         * @param fromRow
+         * The row of the piece to be moved.
+         * @param fromColumn
+         * The column of the piece to be moved.
+         * @param toRow
+         * The row of the destination position.
+         * @param toColumn
+         * The column of the destination position.
+         * @return
+         * Returns true if move is a valid castle.
+         */
+        bool isCastleLegal(int fromRow, int fromColumn, int toRow, int toColumn);
+
+        /**
+         * @brief
          * Checks if a move will place the moving piece's King in check.
          * Assumes that the move is otherwise valid.
          * @param fromRow

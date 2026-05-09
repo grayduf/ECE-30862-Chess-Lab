@@ -15,6 +15,7 @@ namespace Student
       Type type;
       int row;
       int column;
+      bool pieceMoved;
     public:
       /**
        * @brief
@@ -65,6 +66,17 @@ namespace Student
        * Current column number of piece.
        */
       int getColumn();
+
+      /**
+       * @return
+       * true if piece has ever moved, false otherwise.
+       */
+      bool getPieceMoved();
+
+      /**
+       * @brief Sets row and column numbers of piece.
+       */
+      void setPieceMovedTrue();
 
       /**
        * @brief Sets row and column numbers of piece.
