@@ -15,6 +15,7 @@ namespace Student
         int numRows = 0;
         int numCols = 0;
         Color turn = White;
+        Color isPieceUnderThreatColor = White;
         /**
          * @brief
          * A 2D vector of pointers to ChessPiece objects.
@@ -224,13 +225,11 @@ namespace Student
          * Row of piece being checked.
          * @param column
          * Column of piece being checked.
-         * @param color
-         * Color of piece being checked. Same color as King if checking from isCastleLegal.
          * @return
          * Returns true if a piece exists at the stated position, and an opponent
          * piece may move to the position.
          */
-        bool isPieceUnderThreat(int row, int column, Color color);
+        bool isPieceUnderThreat(int row, int column);
 
         /**
          * @brief

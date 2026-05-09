@@ -94,8 +94,8 @@ namespace Student {
         return true;
     }
 
-    bool ChessBoard::isPieceUnderThreat(int row, int column, Color color) {
-        std::vector<ChessPiece *> enemyPieces = color == White ? blackPieces : whitePieces;
+    bool ChessBoard::isPieceUnderThreat(int row, int column) {
+        std::vector<ChessPiece *> enemyPieces = isPieceUnderThreatColor == White ? blackPieces : whitePieces;
         for (const auto& element : enemyPieces) {
             if(isPossibleMove(element->getRow(), element->getColumn(), row, column)) {
                 return true;
@@ -164,7 +164,8 @@ namespace Student {
         else if (toColumn < fromColumn) colStep = -1;
 
         while (currColumn + colStep >= 0 && currColumn + colStep < numCols) { // until go out of bounds
-            if(steps <= 2 && isPieceUnderThreat(fromRow, currColumn, selectedPiece->getColor())) {
+            isPieceUnderThreatColor = selectedPiece->getColor();
+            if(steps <= 2 && isPieceUnderThreat(fromRow, currColumn)) {
                 return false;
             }
 
@@ -260,7 +261,8 @@ namespace Student {
         bool isKingChecked = false;
         for (ChessPiece* king : kingPieces) {
             if (king->getColor() == myColor) {
-                if (isPieceUnderThreat(king->getRow(), king->getColumn(), king->getColor())) {
+                isPieceUnderThreatColor = king->getColor();
+                if (isPieceUnderThreat(king->getRow(), king->getColumn())) {
                     isKingChecked = true;
                     break;
                 }
@@ -321,4 +323,6 @@ namespace Student {
     void ChessBoard::changeTurns() {
         turn = turn == White ? Black : White;
     }
+
+
 }
