@@ -16,6 +16,11 @@ namespace Student
         int numCols = 0;
         Color turn = White;
         Color isPieceUnderThreatColor = White;
+        int enPassantGhostRow = 0;
+        int enPassantGhostCol = 0;
+        int enPassantPieceRow = 0;
+        int enPassantPieceCol = 0;
+        bool enPassantActive = false;
         /**
          * @brief
          * A 2D vector of pointers to ChessPiece objects.

@@ -90,10 +90,21 @@ void test_bonus_castling_failed_case() {
     std::cout << "Bishop move is valid: " << (sBoard.isValidMove(2, 3, 0, 5) ? "true" : "false") << std::endl;
 }
 
+void test_score() {
+    Student::ChessBoard sBoard(8, 8);
+    sBoard.createChessPiece(White, King, 0, 4);    
+    sBoard.createChessPiece(White, Rook, 0, 7);
+    sBoard.createChessPiece(Black, Bishop, 2, 3);
+    
+    std::cout << "scoreBoard: " << sBoard.scoreBoard() << std::endl;
+    std::cout << "highest: " << sBoard.getHighestNextScore() << std::endl;
+}
+
 int main()
 {
     //test_part1_4x4_1();
     //test_part3_4x4_1();
-    test_bonus_castling_failed_case();
+    //test_bonus_castling_failed_case();
+    test_score();
     return EXIT_SUCCESS;
 }
