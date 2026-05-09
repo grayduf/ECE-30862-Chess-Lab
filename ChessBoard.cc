@@ -377,25 +377,17 @@ namespace Student {
                     int toRow = i;
                     int toColumn = j;
                     if(isValidMove(fromRow, fromColumn, toRow, toColumn)) {
-                        ChessPiece* movingPiece = board.at(fromRow).at(fromColumn);
                         ChessPiece* targetPiece = board.at(toRow).at(toColumn);
                         
-                        // manually simulate move on the board
-                        board.at(toRow).at(toColumn) = movingPiece;
-                        board.at(fromRow).at(fromColumn) = nullptr;
-
-                        // temp update the moving piece's pos 
-                        int origRow = fromRow;
-                        int origCol = fromColumn;
-                        movingPiece->setPosition(toRow, toColumn);
+                        //simulate move
+                        capturePiece(fromRow, fromColumn, toRow, toColumn);
 
                         float score = scoreBoard();
                         highScore = score > highScore ? score : highScore;
 
                         //undo the simulated move
-                        board.at(origRow).at(origCol) = movingPiece;
-                        board.at(toRow).at(toColumn) = targetPiece;
-                        movingPiece->setPosition(origRow, origCol);
+                        capturePiece(toRow, toColumn, fromRow, fromColumn);
+                        createChessPiece(targetPiece->getColor(), targetPiece->getType(), toRow, toColumn);
                     }
                 }
             }
@@ -403,4 +395,42 @@ namespace Student {
 
         return highScore;
     }
+
+    // float ChessBoard::getHighestNextScore() {
+    //     float highScore = 0;
+    //     std::vector<ChessPiece *> pieces = turn == White ? whitePieces : blackPieces;
+    //     for (const auto& element : pieces) {
+    //         for(int i = 0; i < numRows; i++) {
+    //             for(int j = 0; j < numCols; j++) {
+    //                 int fromRow = element->getRow();
+    //                 int fromColumn = element->getColumn();
+    //                 int toRow = i;
+    //                 int toColumn = j;
+    //                 if(isValidMove(fromRow, fromColumn, toRow, toColumn)) {
+    //                     ChessPiece* movingPiece = board.at(fromRow).at(fromColumn);
+    //                     ChessPiece* targetPiece = board.at(toRow).at(toColumn);
+                        
+    //                     // manually simulate move on the board
+    //                     board.at(toRow).at(toColumn) = movingPiece;
+    //                     board.at(fromRow).at(fromColumn) = nullptr;
+
+    //                     // temp update the moving piece's pos 
+    //                     int origRow = fromRow;
+    //                     int origCol = fromColumn;
+    //                     movingPiece->setPosition(toRow, toColumn);
+
+    //                     float score = scoreBoard();
+    //                     highScore = score > highScore ? score : highScore;
+
+    //                     //undo the simulated move
+    //                     board.at(origRow).at(origCol) = movingPiece;
+    //                     board.at(toRow).at(toColumn) = targetPiece;
+    //                     movingPiece->setPosition(origRow, origCol);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     return highScore;
+    // }
 }
