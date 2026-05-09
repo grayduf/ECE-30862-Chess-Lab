@@ -6,6 +6,7 @@
 #include "KnightPiece.hh"
 #include "KingPiece.hh"
 
+
 namespace Student {
     using Student::ChessBoard;
 
@@ -93,13 +94,11 @@ namespace Student {
         return true;
     }
 
-    bool ChessBoard::isPieceUnderThreat(int row, int column) {
-        if(getPiece(row, column) != nullptr) {
-            std::vector<ChessPiece *> enemyPieces = getPiece(row, column)->getColor() == White ? blackPieces : whitePieces;
-            for (const auto& element : enemyPieces) {
-                if(isPossibleMove(element->getRow(), element->getColumn(), row, column)) {
-                    return true;
-                }
+    bool ChessBoard::isPieceUnderThreat(int row, int column, Color color) {
+        std::vector<ChessPiece *> enemyPieces = color == White ? blackPieces : whitePieces;
+        for (const auto& element : enemyPieces) {
+            if(isPossibleMove(element->getRow(), element->getColumn(), row, column)) {
+                return true;
             }
         }
         return false;
@@ -142,6 +141,10 @@ namespace Student {
     bool ChessBoard::isCastleLegal(int fromRow, int fromColumn, int toRow, int toColumn) {
         ChessPiece* selectedPiece = board.at(fromRow).at(fromColumn);
 
+        if(selectedPiece == nullptr) {
+            return false;
+        }
+
         if(selectedPiece->getType() != King) {
             return false;
         }
@@ -161,7 +164,7 @@ namespace Student {
         else if (toColumn < fromColumn) colStep = -1;
 
         while (currColumn + colStep >= 0 && currColumn + colStep < numCols) { // until go out of bounds
-            if(steps <= 2 && isPieceUnderThreat(fromRow, currColumn)) {
+            if(steps <= 2 && isPieceUnderThreat(fromRow, currColumn, selectedPiece->getColor())) {
                 return false;
             }
 
@@ -257,7 +260,7 @@ namespace Student {
         bool isKingChecked = false;
         for (ChessPiece* king : kingPieces) {
             if (king->getColor() == myColor) {
-                if (isPieceUnderThreat(king->getRow(), king->getColumn())) {
+                if (isPieceUnderThreat(king->getRow(), king->getColumn(), king->getColor())) {
                     isKingChecked = true;
                     break;
                 }

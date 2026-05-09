@@ -224,11 +224,13 @@ namespace Student
          * Row of piece being checked.
          * @param column
          * Column of piece being checked.
+         * @param color
+         * Color of piece being checked. Same color as King if checking from isCastleLegal.
          * @return
          * Returns true if a piece exists at the stated position, and an opponent
          * piece may move to the position.
          */
-        bool isPieceUnderThreat(int row, int column);
+        bool isPieceUnderThreat(int row, int column, Color color);
 
         /**
          * @brief
