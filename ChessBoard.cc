@@ -385,37 +385,6 @@ namespace Student {
         return pieceScore + movesScore - opPieceScore - opMovesScore;
     }
 
-    float ChessBoard::getHighestNextScore() {
-        float highScore = 0;
-        std::vector<ChessPiece *> pieces = turn == White ? whitePieces : blackPieces;
-        for (const auto& element : pieces) {
-            for(int i = 0; i < numRows; i++) {
-                for(int j = 0; j < numCols; j++) {
-                    int fromRow = element->getRow();
-                    int fromColumn = element->getColumn();
-                    int toRow = i;
-                    int toColumn = j;
-                    if(isValidMove(fromRow, fromColumn, toRow, toColumn)) {
-                        Color color = board.at(toRow).at(toColumn)->getColor();
-                        Type type = board.at(toRow).at(toColumn)->getType();
-                        
-                        //simulate move
-                        capturePiece(fromRow, fromColumn, toRow, toColumn);
-
-                        float score = scoreBoard();
-                        highScore = score > highScore ? score : highScore;
-
-                        //undo the simulated move
-                        capturePiece(toRow, toColumn, fromRow, fromColumn);
-                        createChessPiece(color, type, toRow, toColumn);
-                    }
-                }
-            }
-        }
-
-        return highScore;
-    }
-
     // float ChessBoard::getHighestNextScore() {
     //     float highScore = 0;
     //     std::vector<ChessPiece *> pieces = turn == White ? whitePieces : blackPieces;
@@ -427,25 +396,18 @@ namespace Student {
     //                 int toRow = i;
     //                 int toColumn = j;
     //                 if(isValidMove(fromRow, fromColumn, toRow, toColumn)) {
-    //                     ChessPiece* movingPiece = board.at(fromRow).at(fromColumn);
-    //                     ChessPiece* targetPiece = board.at(toRow).at(toColumn);
+    //                     Color color = board.at(toRow).at(toColumn)->getColor();
+    //                     Type type = board.at(toRow).at(toColumn)->getType();
                         
-    //                     // manually simulate move on the board
-    //                     board.at(toRow).at(toColumn) = movingPiece;
-    //                     board.at(fromRow).at(fromColumn) = nullptr;
-
-    //                     // temp update the moving piece's pos 
-    //                     int origRow = fromRow;
-    //                     int origCol = fromColumn;
-    //                     movingPiece->setPosition(toRow, toColumn);
+    //                     //simulate move
+    //                     capturePiece(fromRow, fromColumn, toRow, toColumn);
 
     //                     float score = scoreBoard();
     //                     highScore = score > highScore ? score : highScore;
 
     //                     //undo the simulated move
-    //                     board.at(origRow).at(origCol) = movingPiece;
-    //                     board.at(toRow).at(toColumn) = targetPiece;
-    //                     movingPiece->setPosition(origRow, origCol);
+    //                     capturePiece(toRow, toColumn, fromRow, fromColumn);
+    //                     createChessPiece(color, type, toRow, toColumn);
     //                 }
     //             }
     //         }
@@ -453,4 +415,69 @@ namespace Student {
 
     //     return highScore;
     // }
+
+    float ChessBoard::getHighestNextScore() {
+        float highScore = 0;
+        std::vector<ChessPiece *> pieces = turn == White ? whitePieces : blackPieces;
+        for (const auto& element : pieces) {
+            for(int i = 0; i < numRows; i++) {
+                for(int j = 0; j < numCols; j++) {
+                    int fromRow = element->getRow();
+                    int fromColumn = element->getColumn();
+                    int toRow = i;
+                    int toColumn = j;
+                    if(isValidMove(fromRow, fromColumn, toRow, toColumn)) {
+                        ChessPiece* movingPiece = board.at(fromRow).at(fromColumn);
+                        ChessPiece* targetPiece = board.at(toRow).at(toColumn);
+                        if(targetPiece != nullptr) {
+                            // Manual vector removal to avoid <algorithm>
+                            auto& vec = (targetPiece->getColor() == White) ? whitePieces : blackPieces;
+                            for (auto it = vec.begin(); it != vec.end(); ) {
+                                if (*it == targetPiece) it = vec.erase(it);
+                                else ++it;
+                            }
+
+                            if(targetPiece->getType() == King) {
+                                for (auto it = kingPieces.begin(); it != kingPieces.end(); ) {
+                                    if (*it == targetPiece) it = kingPieces.erase(it);
+                                    else ++it;
+                                }
+                            }
+                            
+                            delete targetPiece;
+                            board.at(toRow).at(toColumn) = nullptr;
+                        }
+                        
+                        // manually simulate move on the board
+                        board.at(toRow).at(toColumn) = movingPiece;
+                        board.at(fromRow).at(fromColumn) = nullptr;
+
+                        // temp update the moving piece's pos 
+                        int origRow = fromRow;
+                        int origCol = fromColumn;
+                        movingPiece->setPosition(toRow, toColumn);
+
+                        float score = scoreBoard();
+                        highScore = score > highScore ? score : highScore;
+
+                        //undo the simulated move
+                        board.at(origRow).at(origCol) = movingPiece;
+                        board.at(toRow).at(toColumn) = targetPiece;
+                        movingPiece->setPosition(origRow, origCol);
+                        if (targetPiece->getType() == King) {
+                            kingPieces.push_back(targetPiece);
+                        }
+
+                        if(targetPiece->getColor() == White) {
+                            whitePieces.push_back(targetPiece);
+                        } else {
+                            blackPieces.push_back(targetPiece);
+                        }
+                    }
+                }
+            }
+        }
+
+        return highScore;
+    }
 }
