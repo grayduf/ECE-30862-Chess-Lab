@@ -324,5 +324,83 @@ namespace Student {
         turn = turn == White ? Black : White;
     }
 
+    float ChessBoard::getPieceScore(bool turnsColor) {
+        float score = 0;
+        std::vector<ChessPiece *> pieces;
+        if(turnsColor) pieces = turn == White ? whitePieces : blackPieces;
+        else pieces = turn == Black ? whitePieces : blackPieces;
+        for (const auto& element : pieces) {
+            if(element->getType() == King) score += 200;
+            if(element->getType() == Queen) score += 9;
+            if(element->getType() == Rook) score += 5;
+            if(element->getType() == Knight) score += 3;
+            if(element->getType() == Bishop) score += 3;
+            if(element->getType() == Pawn) score += 1;
+        }
 
+        return score;
+    }
+
+    float ChessBoard::getMovesScore(bool turnsColor) {
+        float score = 0;
+        std::vector<ChessPiece *> pieces;
+        if(turnsColor) pieces = turn == White ? whitePieces : blackPieces;
+        else pieces = turn == Black ? whitePieces : blackPieces;
+        for (const auto& element : pieces) {
+            for(int i = 0; i < numRows; i++) {
+                for(int j = 0; j < numCols; j++) {
+                    if(isValidMove(element->getRow(), element->getColumn(), i, j)) score += 0.1;
+                }
+            }
+        }
+
+        return score;
+    }
+
+    float ChessBoard::scoreBoard() {
+        float pieceScore = getPieceScore(true);
+        float movesScore = getMovesScore(true);
+        float opPieceScore = getPieceScore(false);
+        float opMovesScore = getMovesScore(false);
+
+        return pieceScore + movesScore - opPieceScore - opMovesScore;
+    }
+
+    float ChessBoard::getHighestNextScore() {
+        float highScore = 0;
+        std::vector<ChessPiece *> pieces = turn == White ? whitePieces : blackPieces;
+        for (const auto& element : pieces) {
+            for(int i = 0; i < numRows; i++) {
+                for(int j = 0; j < numCols; j++) {
+                    int fromRow = element->getRow();
+                    int fromColumn = element->getColumn();
+                    int toRow = i;
+                    int toColumn = j;
+                    if(isValidMove(fromRow, fromColumn, toRow, toColumn)) {
+                        ChessPiece* movingPiece = board.at(fromRow).at(fromColumn);
+                        ChessPiece* targetPiece = board.at(toRow).at(toColumn);
+                        
+                        // manually simulate move on the board
+                        board.at(toRow).at(toColumn) = movingPiece;
+                        board.at(fromRow).at(fromColumn) = nullptr;
+
+                        // temp update the moving piece's pos 
+                        int origRow = fromRow;
+                        int origCol = fromColumn;
+                        movingPiece->setPosition(toRow, toColumn);
+
+                        float score = scoreBoard();
+                        highScore = score > highScore ? score : highScore;
+
+                        //undo the simulated move
+                        board.at(origRow).at(origCol) = movingPiece;
+                        board.at(toRow).at(toColumn) = targetPiece;
+                        movingPiece->setPosition(origRow, origCol);
+                    }
+                }
+            }
+        }
+
+        return highScore;
+    }
 }

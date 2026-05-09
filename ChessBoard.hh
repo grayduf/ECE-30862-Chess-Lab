@@ -240,6 +240,14 @@ namespace Student
          * An output stream containing the full board layout.
          */
         std::ostringstream displayBoard();
+
+        float getPieceScore(bool turnsColor);
+
+        float getMovesScore(bool turnsColor);
+
+        float scoreBoard();
+
+        float getHighestNextScore();
     };
 }
 
